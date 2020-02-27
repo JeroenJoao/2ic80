@@ -15,7 +15,13 @@ serverMAC = "08:00:27:c6:a4:61"
 # attackerMAC = get_if_hwaddr(networkInterface)
 
 
-
+#input :
+#catched packet which will be replaced
+#host ip adresse for poisoning - target of attacker
+#network interfase as string
+#output:
+#method will send fake dns packet , victim will think that server has replied while
+#the attacker will be the one who replies to the victim
 
 def fake_dns_response(pkt, hostIP, networkInterface):
     hostMAC = util.getMAC(hostIP, networkInterface)
