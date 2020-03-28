@@ -51,12 +51,19 @@ def test(HandlerClass = AuthHandler,
     BaseHTTPServer.test(HandlerClass, ServerClass)
 
 
-if __name__ == '__main__':
-    if len(sys.argv)<3:
-        print "usage SimpleAuthServer.py [port] [username:password]"
-        sys.exit()
+def main (mode, port):
+    if mode == "http":
+        test()
+    elif mode == "https":
+        sslWrap(port)
+    else:
+        print "invalid input"
 
-    https_port = int(sys.argv[1])
-    key = base64.b64encode(sys.argv[2])
-    #test()
-    sslWrap(https_port)
+if len(sys.argv)<4:
+    print "usage serverr.py [port] [username:password] [mode]"
+    sys.exit()
+
+port = int(sys.argv[1])
+key = base64.b64encode(sys.argv[2])
+mode = str(sys.argv[3])
+main(mode, port)
