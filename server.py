@@ -38,13 +38,13 @@ class AuthHandler(SimpleHTTPRequestHandler):
             self.wfile.write('not authenticated')
             pass
 
-def sslWrap (https_port = 80, HandlerClass = AuthHandler, ServerClass = BaseHTTPServer.HTTPServer):
+def sslWrap (https_port = 8050, HandlerClass = AuthHandler, ServerClass = BaseHTTPServer.HTTPServer):
     httpd = SocketServer.TCPServer(("", https_port), HandlerClass)
-    httpd.socket = ssl.wrap_socket(httpd.socket, certfile="/home/attacker/cert.pem", server_side=True)
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile="/home/attacker/localhost.pem", server_side=True)
 
     sa = httpd.socket.getsockname()
     print "serving HTTP on", sa[0],  "port", sa[1], "..."
-    httpd.server_forever()
+    httpd.serve_forever()
 
 def test(HandlerClass = AuthHandler,
          ServerClass = BaseHTTPServer.HTTPServer):
