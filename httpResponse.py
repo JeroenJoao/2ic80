@@ -43,7 +43,7 @@ def parsereq(data):
         elif newi[0] == "Host":
             targeturl = targeturl + newi[1]
         else:
-            if newi[0] != ""and newi[0][0] != 'b':
+            if newi[0] != "" and newi[0][0] != 'b':
                 print(newi[0])
                 req[newi[0]] = newi[1]
 
@@ -71,4 +71,4 @@ def sendpkt(pkt, response):
     sendp(newpkt, verbose=0, iface="enp0s3")
 
 
-sniff(filter="port 8050",prn=process_packet, iface="enp0s3")
+sniff(filter="port 8050", prn=process_packet, iface="enp0s3")

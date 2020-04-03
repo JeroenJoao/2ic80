@@ -60,4 +60,4 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
         print("Poisoned")
 
 
-arpPoisoning([victimIP], [spoofIP], networkInterface)
+#arpPoisoning([victimIP], [spoofIP], networkInterface)
