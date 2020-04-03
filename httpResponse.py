@@ -81,6 +81,6 @@ class Ssl():
 
         sniff(filter="port " + str(self.port), prn=self.process_packet, iface=self.interface)
 
-test = Ssl("192.168.56.101", "8050", "enp0s3")
-
-test.start()
+# test = Ssl("192.168.56.101", "8050", "enp0s3")
+#
+# test.start()

@@ -2,9 +2,7 @@ from scapy.all import *
 from scapy.layers.inet import IP
 
 
-def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface, forward):
-    # update intercepted packet list
-    interceptedPkt.append(pkt)
+def interceptARP(pkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface, forward):
 
     # print("I got here")
     # case 1: victim request an IP which has as destination MAC of attacker
@@ -26,5 +24,4 @@ def interceptARP(pkt, interceptedPkt, attackerMAC, spoofIP, serverMAC, victimMAC
             
             # send packet to the network
             if forward:
-                sendp(pkt, iface=networkInterface)
-            print(pkt.show())
+                sendp(pkt, iface=networkInterface, )

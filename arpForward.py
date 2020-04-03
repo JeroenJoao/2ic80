@@ -32,24 +32,8 @@ class Arp():
         arpSpoof.arpPoisoning(self.victimIP, self.spoofIP, self.networkInterface)
 
 
-    def start(self, mode):
-        if mode:
-            self.spoof()
-            self.startSniff()
-        else:
-            self.spoof()
-            self.startLoudSniff()
+    def start(self):
+        self.spoof()
+        self.startSniff()
 
 
-
-networkInterface = "enp0s3"
-victimIP = "192.168.56.101"
-#victimMAC = "08:00:27:b0:a1:ab"
-
-spoofIP = "192.168.56.104"
-#serverMAC = "08:00:27:c6:a4:61"
-
-
-# test = Arp(networkInterface, [victimIP], [spoofIP])
-#
-# test.start()

