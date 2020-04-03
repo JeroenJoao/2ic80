@@ -1,0 +1,12 @@
+Metadata-Version: 1.1
+Name: SimpleHTTPSServer
+Version: 0.6.98
+Summary: A simple python http and https webserver
+Home-page: https://github.com/pdxjohnny/SimpleHTTPSServer
+Author: John Andersen
+Author-email: johnandersenpdx@gmail.com
+License: UNKNOWN
+Download-URL: https://github.com/pdxjohnny/SimpleHTTPSServer/tarball/0.5
+Description: UNKNOWN
+Keywords: server,http,https,ssl
+Platform: UNKNOWN

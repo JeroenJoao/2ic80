@@ -1,8 +1,6 @@
 from scapy import *
 
 
-
-
 def parse(response):
     stripped_response = "HTTP/1.1 " + str(response.status_code) + "\r\n"
     for key in response.headers:
