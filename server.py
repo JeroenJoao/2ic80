@@ -45,7 +45,7 @@ def sslWrap (https_port = 8050, HandlerClass = AuthHandler, ServerClass = BaseHT
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile="/home/attacker/localhost.pem", server_side=True)
 
     sa = httpd.socket.getsockname()
-    print "serving HTTP on", sa[0],  "port", sa[1], "..."
+    print "serving HTTPS on", sa[0],  "port", sa[1], "..."
     httpd.serve_forever()
 
 def test(HandlerClass = AuthHandler,
@@ -68,4 +68,4 @@ if len(sys.argv)<4:
 port = int(sys.argv[1])
 key = base64.b64encode(sys.argv[2])
 mode = str(sys.argv[3])
-main(mode, port)
+#main(mode, port)
