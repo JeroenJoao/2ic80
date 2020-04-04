@@ -44,14 +44,11 @@ def main():
 
     inputCmd = ""
 
-    while inputCmd != "stop":
+    while inputCmd != "stop" and (typeOfAttack == "arp" or  typeOfAttack == "ssl") :
         if typeOfAttack == "arp":
             inputCmd = input("Select server (e.g. 192.168.56.102): ")
-        elif typeOfAttack == "dns" or typeOfAttack == "ssl":
+        if typeOfAttack == "ssl":
             inputCmd = input("Select server (e.g. 192.168.56.104): ")
-        else :
-            print ("Wrong mode of attack")
-            sys.exit(0)
 
         if inputCmd in devicesListOnNetwork.keys():
             spoofIP.append(inputCmd)
@@ -70,9 +67,18 @@ def main():
     if typeOfAttack == "dns":
         url = ""
         redirectTo = ""
+        inputCmd = ""
         while url != "stop":
             url = input("Enter the URL to DNS spoof list or stop if you are done: ")
+            while inputCmd != "stop" and url!="stop":
+                inputCmd = input("Enter IP corresponded to " + url+ " domain:")
+                if inputCmd in devicesListOnNetwork.keys():
+                    spoofIP.append(inputCmd)
+                    inputCmd = input("Add more server IP or type stop, if you are done:")
+                else:
+                    print("No IP on network")
 
+            inputCmd = ""
             while redirectTo not in devicesListOnNetwork.keys():
                 redirectTo = input("Enter sevrer IP where redirect request to (e.f. 192.168.56.102): ")
 
