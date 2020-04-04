@@ -26,7 +26,8 @@ class Arp():
 
 
     def start(self):
-        self.spoof()
-        self.startSniff()
+        while (True):
+            self.spoof()
+            self.startSniff()
 
 

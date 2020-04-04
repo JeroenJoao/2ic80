@@ -24,4 +24,4 @@ def interceptARP(pkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterfa
             
             # send packet to the network
             if forward:
-                sendp(pkt, iface=networkInterface, verbose=False)
+                sendp(pkt, iface=networkInterface, verbose=0)

