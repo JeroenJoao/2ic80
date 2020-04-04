@@ -43,13 +43,8 @@ class Dns():
 
                 sendp(poisonedPaket, verbose=0, iface=self.networkInterface)
 
-    def spoof(self):
-        print(self.victimIP, self.serverIP)
-        arpSpoof.arpPoisoning([self.victimIP], self.serverIP, self.networkInterface)
-
     def start(self):
         while(True):
-            self.spoof()
             self.startSniffing()
 
   
