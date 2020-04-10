@@ -1,3 +1,13 @@
+'''
+How to run:
+
+python3 server.py [port number] [user name : password] [http/https]
+
+default:
+port number = 8050
+user name : password = pass:123
+http/https = https
+'''
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 import SocketServer
@@ -38,7 +48,7 @@ class AuthHandler(SimpleHTTPRequestHandler):
             self.wfile.write('not authenticated')
             pass
 
-          
+# Func creates https server on port 8050
 def sslWrap (https_port = 8050, HandlerClass = AuthHandler, ServerClass = BaseHTTPServer.HTTPServer):
 
     httpd = SocketServer.TCPServer(("", https_port), HandlerClass)

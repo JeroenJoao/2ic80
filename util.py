@@ -11,7 +11,7 @@ from scapy.all import *
 def getMAC(ip, networkInterface):
 
     #create ARP/Ether() packet
-    #whcih will ask whole network who has such ip
+    #which will ask whole network who has such ip
     arp = ARP(pdst=ip)
     ether = Ether(dst="ff:ff:ff:ff:ff:ff")
     pkt = ether / arp
@@ -30,5 +30,3 @@ def getMAC(ip, networkInterface):
 
 
     return output
-
-# getMAC("192.168.56.101", networkInterface)

